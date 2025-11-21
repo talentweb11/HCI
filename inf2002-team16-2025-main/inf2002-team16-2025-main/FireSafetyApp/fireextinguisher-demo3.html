@@ -15,7 +15,7 @@
 
 
     <!-- Main Content -->
-    <div class="container-demo2">
+    <div class="container-demo2 bg-wall footer-raise">
       <h2 data-speakable>Step 3: Squeeze and hold the lever</h2>
 
 
@@ -59,7 +59,7 @@
 
 
       <!-- Start Button -->
-      <a class="button-start" href="fireextinguisher-step3.html">Start</a>
+      <a class="button-start btn-up" href="fireextinguisher-step3.html">Start</a>
     </div>
 
 
@@ -74,6 +74,16 @@
     @keyframes blink {
       0%, 50%, 100% { opacity: 1; }
       25%, 75% { opacity: 0; }
+    }
+
+    /* Raise footer slightly for this demo so it isn't too low */
+    .footer-raise {
+      padding-bottom: 0;
+    }
+
+    /* Nudge start button higher on this screen */
+    .btn-up {
+      margin-top: 8px;
     }
 
 

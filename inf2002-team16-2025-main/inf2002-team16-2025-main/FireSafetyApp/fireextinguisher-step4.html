@@ -14,6 +14,7 @@
       align-items: center;
       justify-content: flex-start;
       overflow: hidden;
+      background-color: #f4f4f4;
     }
 
     .fire-extinguisher {
@@ -61,12 +62,49 @@
       z-index: 10;
     }
 
+    .spray-wrapper {
+      position: absolute;
+      top: -40px;
+      left: 100%;
+      transform-origin: left center;
+      transform: rotate(0deg);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .spray {
+      position: relative;
+      width: 0;
+      height: 0;
+      border-top: 40px solid transparent;
+      border-bottom: 40px solid transparent;
+      border-right: 150px solid rgba(161, 156, 156, 0.8); /* tip sits at the nozzle anchor */
+      filter: blur(4px);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .spray.active {
+      opacity: 1;
+      animation: sprayPulse 0.3s infinite alternate;
+    }
+
+    @keyframes sprayPulse {
+      0% { transform: scaleX(1) scaleY(1); opacity: 0.7; }
+      100% { transform: scaleX(1.1) scaleY(1.05); opacity: 1; }
+    }
+
     .fire {
       position: absolute;
       top: 120px;
       left: 140px;
       width: 100px;
       z-index: 0;
+      transform-origin: center center;
+      transition: transform 0.4s ease;
+    }
+    .fire.extinguished {
+      transform: scale(0.55);
     }
     .dustbin{
       position: absolute;
@@ -106,21 +144,23 @@
   <div class="frame">
 
     <!-- Header -->
-    <div data-include="header.html" data-title="Step 2: Aim"></div>
+    <div data-include="header.html" data-title="Step 4: Sweep"></div>
 
     <!-- Main Content -->
     <div class="container-demo2 extinguisher-demo-container bg-wall">
-      <h2 id="instruction-text">Aim the nozzle at the fire!</h2>
+      <h2 id="instruction-text">Pull out the nozzle and spray toward the fire</h2>
+
       <img src="assests/images/equipments/dustbin.png" class="dustbin" alt="dustbin">
-
       <img id="fire" src="assests/images/equipments/fire.png" class="fire" alt="Fire">
-
-
       <img src="assests/images/equipments/fireextinguisher-no-nozzle.png" class="fire-extinguisher" alt="Fire Extinguisher">
 
       <div id="nozzle-container" class="nozzle-container">
         <div class="hose-segment"></div>
         <img src="assests/images/equipments/fire-nozzle.png" class="nozzle" id="nozzle" alt="Nozzle">
+
+        <div id="spray-wrapper" class="spray-wrapper">
+          <div id="spray" class="spray"></div>
+        </div>
       </div>
 
       <div id="drag-zone" class="drag-zone"></div>
@@ -141,20 +181,25 @@
       const nozzleContainer = document.getElementById('nozzle-container');
       const nozzle = document.getElementById('nozzle');   
       const dragZone = document.getElementById('drag-zone');
+      const sprayWrapper = document.getElementById('spray-wrapper');
+      const spray = document.getElementById('spray');
       const successOverlay = document.getElementById('success-overlay');
       const successStamp = document.querySelector('.success-stamp');
       const frame = document.querySelector('.frame');
 
       let isDragging = false;
       let origin = { x: 0, y: 0 };
-      let frameRect;
       let targetAngle = 180;
-      const aimTolerance = 10; // degrees within which we consider the nozzle aimed
-      let hasShownSuccess = false;
+      let holdTimer = null;
+      let shrinkTimer = null;
+      let hasCompleted = false;
+      let fireShrunk = false;
+      const aimTolerance = 15; // more forgiving aiming tolerance
+      const minDistance = 60; // require some extension before counting aim
+      const maxDistance = 100; // cap how far the hose can extend
 
       function updateOrigin() {
-        frameRect = frame.getBoundingClientRect();
-        // anchor point near extinguisher mouth
+        const frameRect = frame.getBoundingClientRect();
         origin.x = frameRect.left + 170;
         origin.y = frameRect.bottom - 190;
         updateTargetAngle();
@@ -165,24 +210,38 @@
         const fireRect = fire.getBoundingClientRect();
         const fireCenterX = fireRect.left + fireRect.width / 2;
         const fireCenterY = fireRect.top + fireRect.height / 2;
-        targetAngle = Math.atan2(fireCenterY - origin.y, fireCenterX - origin.x) * (180 / Math.PI);
+        targetAngle = normalizeAngle(Math.atan2(fireCenterY - origin.y, fireCenterX - origin.x) * (180 / Math.PI) + 30);
+        setSprayAngle(targetAngle);
       }
 
       function angleDelta(a, b) {
-        const diff = Math.abs(((a - b) % 360) + 360) % 360;
-        return diff > 180 ? 360 - diff : diff;
+        return Math.abs(((a - b + 180) % 360 + 360) % 360 - 180);
+      }
+
+      function normalizeAngle(deg) {
+        return ((deg % 360) + 360) % 360;
+      }
+
+      function setSprayAngle() {
+        // Keep mist aligned with the nozzle; nozzle rotation already follows the cursor
+        sprayWrapper.style.transform = 'rotate(0deg)';
       }
 
       // Initialize immediately
       nozzleContainer.classList.remove('hidden');
-      instructionText.textContent = "Aim the nozzle at the fire!";
+      instructionText.textContent = "Pull out the nozzle and spray toward the fire";
       updateOrigin();
-      window.addEventListener('resize', updateOrigin);
+      window.addEventListener('resize', () => {
+        updateOrigin();
+        // Keep hose visually pointed toward the target after resize
+        nozzleContainer.style.transform = `rotate(${targetAngle}deg)`;
+      });
 
       const startDrag = (e) => {
         e.preventDefault();
         isDragging = true;
         nozzle.style.visibility = 'hidden';
+        spray.classList.add('active');
         document.addEventListener('mousemove', handleDrag);
         document.addEventListener('mouseup', endDrag);
         document.addEventListener('touchmove', handleDrag);
@@ -191,36 +250,50 @@
       };
 
       const handleDrag = (e) => {
-        if (!isDragging || hasShownSuccess) return;
+        if (!isDragging || hasCompleted) return;
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         const dx = clientX - origin.x;
         const dy = clientY - origin.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+        const clampedDistance = Math.min(distance, maxDistance);
+        const angle = normalizeAngle(Math.atan2(dy, dx) * (180 / Math.PI) + 30);
+        const tipPosition = {
+          x: origin.x + clampedDistance * Math.cos(angle * (Math.PI / 180)),
+          y: origin.y + clampedDistance * Math.sin(angle * (Math.PI / 180)),
+        };
 
-        nozzleContainer.style.width = `${distance}px`;
+        nozzleContainer.style.width = `${clampedDistance}px`;
         nozzleContainer.style.transform = `rotate(${angle}deg)`;
+        setSprayAngle(angle);
 
-        if (angleDelta(angle, targetAngle) <= aimTolerance && distance > 60) {
-          showSuccess();
+        const aimedAtFire = angleDelta(angle, targetAngle) <= aimTolerance;
+        const overFire = isTipOverFire(tipPosition);
+
+        if ((aimedAtFire || overFire) && clampedDistance > minDistance) {
+          startShrinkCountdown();
+        } else {
+          clearShrinkCountdown();
         }
       };
 
 const endDrag = () => {
+  if (!isDragging) return;
   isDragging = false;
+  spray.classList.remove('active');
+  clearTimeout(holdTimer);
+  clearShrinkCountdown();
 
-  // Smoothly retract the hose
   nozzleContainer.style.transition = 'width 0.4s ease';
   nozzleContainer.style.width = '0';
 
-  // Make nozzle visible again at original position
   setTimeout(() => {
     nozzle.style.visibility = 'visible';
-    nozzleContainer.style.transition = ''; // reset transition
+    nozzleContainer.style.transition = '';
+    nozzleContainer.style.transform = `rotate(${targetAngle}deg)`;
+    setSprayAngle(targetAngle);
   }, 400);
 
-  // Remove listeners
   document.removeEventListener('mousemove', handleDrag);
   document.removeEventListener('mouseup', endDrag);
   document.removeEventListener('touchmove', handleDrag);
@@ -228,14 +301,46 @@ const endDrag = () => {
   dragZone.style.cursor = 'grab';
 };
 
-      function showSuccess() {
-        if (hasShownSuccess) return;
-        hasShownSuccess = true;
-        instructionText.classList.add('hidden-opacity');
+      function startShrinkCountdown() {
+        if (fireShrunk || shrinkTimer) return;
+        clearTimeout(shrinkTimer);
+        shrinkTimer = setTimeout(() => {
+          shrinkFire();
+        }, 1000);
+      }
+
+      function clearShrinkCountdown() {
+        clearTimeout(shrinkTimer);
+        shrinkTimer = null;
+      }
+
+      function shrinkFire() {
+        if (!fire || fireShrunk) return;
+        fire.classList.add('extinguished');
+        fireShrunk = true;
+        clearShrinkCountdown();
+        // After fire is reduced, wait 2s then mark completion
+        clearTimeout(holdTimer);
+        holdTimer = setTimeout(() => {
+          completeTask();
+        }, 2000);
+      }
+
+      function isTipOverFire(tip) {
+        if (!fire) return false;
+        const rect = fire.getBoundingClientRect();
+        return tip.x >= rect.left && tip.x <= rect.right && tip.y >= rect.top && tip.y <= rect.bottom;
+      }
+
+      function completeTask() {
+        if (hasCompleted) return;
+        hasCompleted = true;
+        spray.classList.remove('active');
+
         successOverlay.style.display = 'flex';
         setTimeout(() => successStamp.classList.add('stamped'), 100);
         setTimeout(() => {
-          window.location.href = 'fireextinguisher-demo3.html';
+          window.location.href = 'fireextinguisher-end.html';
         }, 3000);
       }
 
