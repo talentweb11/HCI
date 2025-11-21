@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leave Session</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+
+<body>
+    <div class="frame">
+
+        <div data-include="header.html" data-title="Session"></div>
+
+        <div class="container demo-container">
+            <pre id="sessionInfo"></pre>
+            <a class="button-start" onclick="leaveSession()">Leave Session</a>
+        </div>
+
+        <div data-include="footer.html"></div>
+
+    </div>
+
+    <script src="static/js/include.js"></script>
+    <script src="static/js/session.js"></script>
+    <script>
+        showSessionInfo();
+    </script>
+</body>
+
+</html>

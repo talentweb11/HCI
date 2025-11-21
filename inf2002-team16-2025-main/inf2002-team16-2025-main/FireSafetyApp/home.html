@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fire Safety App</title>
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+  <div class="frame">
+
+    <div class="container">
+      <div class="button" id="extinguisher-btn">
+        <img src="assests/images/equipments/fireextinguisher.png" alt="Fire Extinguisher" />
+        <p data-speakable><strong>Fire Extinguisher</strong></p>
+      </div>
+
+      <div class="button" id="hose-btn">
+        <img src="assests/images/equipments/hosereel.png" alt="Hose Reel" />
+        <p data-speakable><strong>Hose Reel</strong></p>
+      </div>
+    </div>
+
+    <!-- footer included from a partial to avoid repeating code across pages -->
+    <div data-include="footer.html"></div>
+  </div>
+
+  <script src="static/js/include.js"></script>
+  <script>
+    // Navigation for home buttons
+    document.getElementById('extinguisher-btn').addEventListener('click', () => {
+      window.location.href = 'fireextinguisher-title.html';
+    });
+
+    document.getElementById('hose-btn').addEventListener('click', () => {
+      window.location.href = 'hosereel-title.html';
+    });
+  </script>
+</body>
+</html>
