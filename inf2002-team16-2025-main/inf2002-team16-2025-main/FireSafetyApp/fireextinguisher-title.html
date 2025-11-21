@@ -5,6 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fire Extinguisher Lesson</title>
   <link rel="stylesheet" href="static/css/style.css">
+  <style>
+    .frame { overflow: hidden; }
+    .title-shell {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: radial-gradient(circle at 20% 20%, #f7fbff, #eef3ff 35%, #e8eef9);
+    }
+    .title-card {
+      background: #fff;
+      width: min(520px, 92%);
+      border-radius: 16px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+      padding: 22px 24px;
+      display: grid;
+      gap: 14px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+      align-items: center;
+    }
+    .title-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .title-meta img { width: 140px; height: auto; }
+    .title-meta h2 { margin: 0; color: #0f172a; }
+    .title-list {
+      margin: 0;
+      padding-left: 18px;
+      color: #475569;
+      font-size: 15px;
+      line-height: 1.5;
+      text-align: left;
+      max-width: 360px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .title-actions { margin-top: 6px; display: flex; justify-content: center; }
+  </style>
 </head>
 <body>
   <div class="frame">
@@ -12,27 +55,23 @@
     <!-- Header include with dynamic title -->
     <div data-include="header.html" data-title="What you will learn"></div>
 
-    <div class="container" style="justify-content: flex-start; padding-top: 30px;">
-      <img 
-        src="assests/images/equipments/fireextinguisher.png" 
-        alt="Fire Extinguisher" 
-        style="width: 150px; height: 180px; margin: 20px 0;"
-      />
-    <h2 style="margin-top: 10px; margin-bottom: 5px;">Fire Extinguisher</h2>
-
-
-    <div style="text-align: left; font-size: 18px; line-height: 1.4; margin-top: 0; margin-bottom: 10px;">
-          <ol style="padding-left: 20px; margin-top: 0; margin-bottom: 0;">
+    <div class="title-shell">
+      <div class="title-card">
+        <div class="title-meta">
+          <h2 data-speakable>Fire Extinguisher</h2>
+          <img src="assests/images/equipments/fireextinguisher.png" alt="Fire Extinguisher" />
+        </div>
+        <ol class="title-list">
           <li data-speakable>Pull the pin</li>
           <li data-speakable>Aim the nozzle</li>
           <li data-speakable>Squeeze the lever</li>
           <li data-speakable>Sweep left & right</li>
         </ol>
+        <div class="title-actions">
+          <a class="button-start" href="fireextinguisher-demo1.html">Start Demo</a>
+        </div>
       </div>
-
-  <a class="button-start" href="fireextinguisher-demo1.html">Start Demo</a>
-  </div>
-
+    </div>
 
     <div data-include="footer.html"></div>
     </div>
