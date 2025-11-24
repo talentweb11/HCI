@@ -53,7 +53,7 @@
       position: relative;
       width: 0;
       height: 0;
-      border-top: 40px solid transparent;
+      border-top: 50px solid transparent;
       border-bottom: 40px solid transparent;
       border-left: 150px solid rgba(161, 156, 156, 0.8);
       filter: blur(4px);
@@ -117,7 +117,7 @@
     <div data-include="header.html" data-title="Step 3: Squeeze"></div>
 
     <!-- Main Content -->
-    <div class="container-demo2 bg-wall" style="--wall-pos-x: 50%; --wall-pos-y: 35%;">
+    <div class="container-demo2 bg-wall" style="--wall-pos-x: 50%; --wall-pos-y: -160px;">
       <h2 data-speakable>Squeeze and hold the lever</h2>
 
       <!-- Fire -->
@@ -139,7 +139,7 @@
         id="extinguisher"
         src="assests/images/equipments/fireextinguisher-no-nozzle.png"
         alt="Fire Extinguisher"
-        style="width: 150px; height: auto; margin-top: 50px; transform: translateX(-110px); position: relative;"
+        style="width: 150px; height: auto; margin-top: 95px; transform: translateX(-110px); position: relative;"
       />
 
       <!-- Clickable handle area -->
@@ -193,10 +193,10 @@
         if (isHolding) return;
         spray.classList.add('active');
 
-        // Start 3-second hold timer
+        // Start 0.3s hold timer
         holdTimer = setTimeout(() => {
           completeTask();
-        }, 2000);
+        }, 300);
       }
 
       function stopSpray() {
