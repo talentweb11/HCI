@@ -223,10 +223,15 @@ body {
 
 /* Reusable background for extinguisher demos */
 .bg-wall {
+  /* Allow each page to tweak wall placement without touching the shared CSS */
+  --wall-pos-x: center;
+  --wall-pos-y: center;
+  --wall-size: cover;
   background-image: url('../../assests/images/equipments/wall.png');
   background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover; /* full-bleed background */
+  background-position-x: var(--wall-pos-x, center);
+  background-position-y: var(--wall-pos-y, center);
+  background-size: var(--wall-size); /* full-bleed background */
 }
 
 .container-demo2 {
