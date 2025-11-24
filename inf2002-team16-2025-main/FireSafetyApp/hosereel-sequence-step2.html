@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hose Reel Lesson</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+
+<body>
+    <div class="frame">
+
+        <!-- Header include with dynamic title -->
+        <div data-include="header.html" data-title="Demo" data-step="2" data-total="3" id="header-include"></div>
+
+        <div class="container valve-demo-container"
+            style="background: url('assests/images/equipments/brick-background-pipe.png') no-repeat center center; background-size: cover; justify-content: flex-start;">
+
+            <h2 data-speakable id="text-instruction" class="text-instruction">Pull the hose reel!</h2>
+
+            <div class="reel-interact-area" id="reel-interact-area">
+                <img src="assests/images/equipments/hosereel2.png" alt="Coiled Hose Reel" id="static-reel"
+                    class="static-reel" />
+
+                <img src="assests/images/equipments/hosereel-nozzleless.png" alt="Extended Hose" class="hose-body" />
+
+                <div id="extended-hose" class="extended-hose hidden">
+                    <div class="hose-segment"></div>
+                    <img src="assests/images/equipments/hose-nozzle.png" alt="Nozzle" class="nozzle" id="nozzle" />
+                </div>
+
+                <div class="drag-target" id="drag-target"></div>
+            </div>
+
+            <img src="assests/images/equipments/hand-pull-gesture.png" alt="Swipe Gesture" id="hand-gesture"
+                class="hand-gesture hand-gesture-step2" />
+
+            <div id="success-message" class="success-overlay hidden">
+                <img src="assests/images/equipments/complete-stamp.png" class="success-stamp" alt="Success">
+            </div>
+
+            <a id="start-demo-button" class="button-start" style="position: absolute; bottom: 9%;">Start</a>
+        </div>
+
+        <div data-include="footer.html"></div>
+    </div>
+
+    <script src="static/js/include.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const startButton = document.getElementById('start-demo-button');
+            const handGesture = document.getElementById('hand-gesture');
+            const instructionText = document.getElementById('text-instruction');
+            const staticReel = document.getElementById('static-reel');
+            const extendedHose = document.getElementById('extended-hose');
+            const nozzle = document.getElementById('nozzle');
+            const dragTarget = document.getElementById('drag-target');
+            const reelInteractArea = document.getElementById('reel-interact-area');
+            const successMessage = document.getElementById('success-message');
+            const stampImage = document.querySelector('.success-stamp');
+
+            let isDragging = false;
+            let containerRect = null;
+            let reelCenter = { x: 0, y: 0 };
+
+            // Function to calculate center and bounding box
+            const updateMeasurements = () => {
+                containerRect = reelInteractArea.getBoundingClientRect();
+                // Calculate the center of the reel where the hose starts
+                reelCenter.x = containerRect.left + containerRect.width / 2;
+                reelCenter.y = containerRect.top + containerRect.height / 2;
+                // You may need to fine-tune reelCenter.x/y based on the exact connection point
+            };
+
+            // --- 1. Start Demo Button Click ---
+            startButton.addEventListener('click', () => {
+                const newTitle = 'Step 2: Pull the hose!';
+                const headerInclude = document.getElementById('header-include');
+
+                // 1. Update the data-title attribute (for completeness)
+                if (headerInclude) {
+                    headerInclude.setAttribute('data-title', newTitle);
+
+                    // 2. Direct Fix: Find the specific header title element inside the included content
+                    // Since header.html uses id="header-title", we query for it inside the container.
+                    const titleDisplayElement = headerInclude.querySelector('#header-title');
+
+                    if (titleDisplayElement) {
+                        titleDisplayElement.textContent = newTitle;
+                    } else {
+                        console.error('The element with ID "header-title" could not be found inside the header include after clicking "Start".');
+                    }
+                }
+
+                // A. Hide instructional elements
+                startButton.classList.add('hidden');
+
+                // B. Update instruction text
+                instructionText.textContent = "";
+                handGesture.classList.add('hidden');
+
+                // Initial setup for drag calculation
+                updateMeasurements();
+                window.addEventListener('resize', updateMeasurements);
+                // --- 2. Drag Start ---
+                const startDrag = (e) => {
+                    e.preventDefault();
+                    isDragging = true;
+
+                    // Hide the coiled reel, show the dynamic hose
+                    staticReel.classList.add('hidden');
+                    extendedHose.classList.remove('hidden');
+
+                    // Listen for movement and release
+                    document.addEventListener('mousemove', handleDrag);
+                    document.addEventListener('mouseup', endDrag);
+                    document.addEventListener('touchmove', handleDrag);
+                    document.addEventListener('touchend', endDrag);
+
+                    dragTarget.style.cursor = 'grabbing';
+                };
+
+                // A. Enable drag interaction
+                dragTarget.addEventListener('mousedown', startDrag);
+                dragTarget.addEventListener('touchstart', startDrag);
+
+                // --- 3. Dragging (Movement) ---
+                const handleDrag = (e) => {
+                    if (!isDragging) return;
+
+                    // Get current mouse/touch coordinates
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                    // Calculate distance (length) and angle to the cursor
+                    const dx = clientX - reelCenter.x;
+                    const dy = clientY - reelCenter.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const angle = Math.atan2(dy, dx) * (180 / Math.PI); // Angle in degrees
+
+                    // Apply transformation to the dynamic hose
+                    extendedHose.style.width = `${distance}px`;
+                    extendedHose.style.transform = `rotate(${angle}deg)`;
+
+                    // Optional: Limit maximum extension length
+                    if (distance > 200) {
+                        // You can add logic here to trigger the "hose is fully extended" step
+                        showSuccess();
+                    }
+                };
+
+                // --- 4. Drag End (Recoil) ---
+                const endDrag = () => {
+                    isDragging = false;
+
+                    // Hide dynamic hose, show static coiled reel
+                    extendedHose.classList.add('hidden');
+                    staticReel.classList.remove('hidden');
+
+                    // Remove listeners
+                    document.removeEventListener('mousemove', handleDrag);
+                    document.removeEventListener('mouseup', endDrag);
+                    document.removeEventListener('touchmove', handleDrag);
+                    document.removeEventListener('touchend', endDrag);
+
+                    dragTarget.style.cursor = 'grab';
+
+
+                };
+
+                // --- 3. Success State ---
+                function showSuccess() {
+                    instructionText.classList.add('hidden-opacity');
+                    successMessage.style.display = 'flex'; // Show the overlay
+                    setTimeout(() => {
+                        stampImage.classList.add('stamped');
+                    }, 50);
+
+                    // Set a 3 - second delay before moving to the next step
+                    const delayInMilliseconds = 3000; // 3 seconds
+
+                    setTimeout(() => {
+                        // Replace 'pull-hose-step.html' with the actual URL of your next step page
+                        window.location.href = 'hosereel-sequence-step3.html';
+                    }, delayInMilliseconds);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

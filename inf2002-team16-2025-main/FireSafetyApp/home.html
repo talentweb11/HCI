@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fire Safety App</title>
+  <link rel="stylesheet" href="static/css/style.css">
+  <style>
+    .home-shell {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: radial-gradient(circle at 20% 10%, #f7fbff, #eef3ff 35%, #e8eef9);
+    }
+
+    .home-grid {
+      display: grid;
+      gap: 16px;
+      width: min(520px, 100%);
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .home-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+      display: grid;
+      gap: 12px;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      border: 1px solid #e2e8f0;
+      text-align: left;
+    }
+
+    .home-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 32px rgba(59, 130, 246, 0.15);
+      border-color: #cbd5e1;
+    }
+
+    .home-card img {
+      width: 90px;
+      height: auto;
+      justify-self: center;
+    }
+
+    .home-card h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #0f172a;
+    }
+
+    .home-card p {
+      margin: 0;
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #e0f2fe;
+      color: #0369a1;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+      border: 1px solid #bae6fd;
+    }
+
+    .home-heading {
+      margin: 0;
+      color: #0f172a;
+      letter-spacing: 0.6px;
+      font-size: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .heading-divider {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(37, 99, 235, 0.3), rgba(16, 185, 129, 0.3));
+      border: none;
+      margin: 4px 0 10px;
+    }
+
+    .home-header {
+      display: grid;
+      justify-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="frame">
+
+    <div class="home-shell">
+      <div style="width: min(520px, 100%); display: grid; gap: 12px;">
+        <div class="home-header">
+          <h2 class="home-heading">Fire Equipment Training</h2>
+          <div class="heading-divider"></div>
+        </div>
+        <div class="home-grid">
+          <div class="home-card" id="extinguisher-btn">
+            <img src="assests/images/equipments/fireextinguisher.png" alt="Fire Extinguisher" />
+            <div>
+              <h3 data-speakable>Fire Extinguisher</h3>
+              <p data-speakable>Hands-on walkthrough of PASS steps with guided visuals.</p>
+            </div>
+          </div>
+
+          <div class="home-card" id="hose-btn">
+            <img src="assests/images/equipments/hosereel.png" alt="Hose Reel" />
+            <div>
+              <h3 data-speakable>Hose Reel</h3>
+              <p data-speakable>Learn activation, hose deployment, and aiming with practice sequences.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- footer included from a partial to avoid repeating code across pages -->
+    <div data-include="footer.html"></div>
+  </div>
+
+  <script src="static/js/include.js"></script>
+  <script>
+    // Navigation for home buttons
+    document.getElementById('extinguisher-btn').addEventListener('click', () => {
+      window.location.href = 'fireextinguisher-title.html';
+    });
+
+    document.getElementById('hose-btn').addEventListener('click', () => {
+      window.location.href = 'hosereel-title.html';
+    });
+  </script>
+</body>
+</html>

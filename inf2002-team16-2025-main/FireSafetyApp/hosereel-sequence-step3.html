@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hose Reel Lesson</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+
+<body>
+    <div class="frame">
+
+        <!-- Header include with dynamic title -->
+        <div data-include="header.html" data-title="Demo" data-step="3" data-total="3" id="header-include"></div>
+
+        <div class="container valve-demo-container"
+            style="background: url('assests/images/equipments/brick-background.png') no-repeat center center; background-size: cover; justify-content: flex-start;">
+
+            <h2 data-speakable id="text-instruction" class="text-instruction">Turn on water & aim at base of fire!</h2>
+
+            <div class="reel-interact-area" id="reel-interact-area">
+                <img src="assests/images/equipments/hose-body.png" alt="Hose Reel Body" id="hose-pipe-body"
+                    class="hose-pipe-body" />
+
+                <div id="extended-hose" class="extended-hose2 hidden">
+                    <div class="hose-segment2"></div>
+                    <img src="assests/images/equipments/hose-nozzle-pov-onn.png" alt="Nozzle" class="nozzle2"
+                        id="nozzle" />
+                </div>
+
+                <div id="aiming-pivot" class="aiming-pivot">
+                    <!-- <div id="dynamic-hose-segment" class="dynamic-hose-segment"></div> -->
+                    <!-- <div id="water-stream" class="water-stream"></div> -->
+                    <img src="assests/images/equipments/hose-nozzle-pov-on.png" alt="Hose Reel Nozzle Pov"
+                        id="hose-nozzle-pov-on" class="hose-nozzle-pov hidden" />
+                </div>
+
+                <img src="assests/images/equipments/hose-nozzle-pov.png" alt="Hose Reel Nozzle Pov" id="hose-nozzle-pov"
+                    class="hose-nozzle-pov" />
+
+                <img src="assests/images/equipments/hose-nozzle-indicator.png" alt="Hose Reel Nozzle Pov"
+                    id="hose-nozzle-indicator" class="hose-nozzle-indicator" />
+
+                <div class="drag-target2 hidden" id="drag-target2"></div>
+            </div>
+
+            <div id="fire-target" class="fire-target"></div>
+
+            <img src="assests/images/equipments/hand-swipe-gesture.png" alt="Swipe Gesture" id="hand-gesture-on-nozzle"
+                class="hand-gesture-on-nozzle" />
+
+            <div id="success-message" class="success-overlay hidden">
+                <img src="assests/images/equipments/complete-stamp.png" class="success-stamp" alt="Success">
+            </div>
+
+            <a id="start-demo-button" class="button-start" style="position: absolute; bottom: 9%;">Start</a>
+        </div>
+
+        <div data-include="footer.html"></div>
+    </div>
+
+    <script src="static/js/include.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const startButton = document.getElementById('start-demo-button');
+            const handGesture = document.getElementById('hand-gesture-on-nozzle');
+            const indicator = document.getElementById('hose-nozzle-indicator');
+            const instructionText = document.getElementById('text-instruction');
+            const successMessage = document.getElementById('success-message');
+
+            // Hose elements
+            const fireTarget = document.getElementById('fire-target');
+            const hoseNozzlePov = document.getElementById('hose-nozzle-pov');
+            const hoseNozzlePovOn = document.getElementById('hose-nozzle-pov-on');
+            const hoseBody = document.getElementById('hose-pipe-body');
+            const reelInteractArea = document.getElementById('reel-interact-area');
+            const extendedHose = document.getElementById('extended-hose');
+            const dragTarget = document.getElementById('drag-target2');
+            const waterStream = document.getElementById('water-stream');
+            const nozzle = document.getElementById('nozzle');
+
+            let isDragging = false;
+            let isComplete = false;
+            let dragOrigin = { x: 0, y: 0 };
+            let containerRect = null;
+
+            // --- 0. Setup measurement helper ---
+            function updateMeasurements() {
+                // Get bounding boxes
+                containerRect = dragTarget.getBoundingClientRect();
+
+                // Use the center (or tweak if your hose connects at an edge)
+                dragOrigin.x = containerRect.left + containerRect.width / 2;
+                dragOrigin.y = containerRect.top + containerRect.height / 2;
+            }
+
+            // --- Spawn single water particle ---
+            function spawnWaterParticle(x, y, angle) {
+                const particle = document.createElement("div");
+                particle.classList.add("water-particle");
+
+                // Place at the nozzle tip (local to reel area)
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+
+                // Randomize slight spread & travel distance
+                const spread = (Math.random() - 0.5) * 40; // ±15°
+                const travel = 250 + Math.random() * 50;   // 100–140 px
+                const rot = angle + spread;
+
+                // Final target position using simple trig
+                const dx = travel * Math.cos(rot * Math.PI / 180);
+                const dy = travel * Math.sin(rot * Math.PI / 180);
+
+                particle.style.setProperty("--dx", `${dx}px`);
+                particle.style.setProperty("--dy", `${dy}px`);
+
+                reelInteractArea.appendChild(particle);
+
+                // Auto-remove after animation
+                setTimeout(() => particle.remove(), 500);
+            }
+
+
+            // --- 1. Start button click ---
+            startButton.addEventListener('click', () => {
+                const newTitle = 'Step 3: Turn on water!';
+                const headerInclude = document.getElementById('header-include');
+
+                // 1. Update the data-title attribute (for completeness)
+                if (headerInclude) {
+                    headerInclude.setAttribute('data-title', newTitle);
+
+                    // 2. Direct Fix: Find the specific header title element inside the included content
+                    // Since header.html uses id="header-title", we query for it inside the container.
+                    const titleDisplayElement = headerInclude.querySelector('#header-title');
+
+                    if (titleDisplayElement) {
+                        titleDisplayElement.textContent = newTitle;
+                    } else {
+                        console.error('The element with ID "header-title" could not be found inside the header include after clicking "Start".');
+                    }
+                }
+
+                startButton.style.display = 'none';
+                handGesture.classList.add('hidden');
+                extendedHose.classList.add('hidden');
+
+                indicator.classList.remove('hidden');
+                indicator.classList.add('clickable-indicator');
+                indicator.addEventListener('click', handleUserTurn);
+
+                instructionText.textContent = "";
+            });
+
+            // --- 2. Turn on water (indicator click) ---
+            function handleUserTurn() {
+                const newTitle = 'Step 3: Aim at base of fire!';
+                const headerInclude = document.getElementById('header-include');
+
+                // 1. Update the data-title attribute (for completeness)
+                if (headerInclude) {
+                    headerInclude.setAttribute('data-title', newTitle);
+
+                    // 2. Direct Fix: Find the specific header title element inside the included content
+                    // Since header.html uses id="header-title", we query for it inside the container.
+                    const titleDisplayElement = headerInclude.querySelector('#header-title');
+
+                    if (titleDisplayElement) {
+                        titleDisplayElement.textContent = newTitle;
+                    } else {
+                        console.error('The element with ID "header-title" could not be found inside the header include after clicking "Start".');
+                    }
+                }
+
+                indicator.removeEventListener('click', handleUserTurn);
+                indicator.classList.remove('clickable-indicator');
+                indicator.classList.add('indicator-on');
+                extendedHose.classList.add('hidden');
+                nozzle.classList.add('hidden');
+
+                instructionText.textContent = "";
+
+                // Wait for CSS indicator rotation animation to finish
+                setTimeout(() => {
+                    // Hide static hose, show extended hose
+                    // extendedHose.classList.remove('hidden');
+
+                    // Activate dragging
+                    dragTarget.classList.remove('hidden');
+                    dragTarget.style.cursor = 'grab';
+                    dragTarget.addEventListener('mousedown', startDrag);
+                    dragTarget.addEventListener('touchstart', startDrag);
+                }, 0);
+            }
+
+            // --- 3. Dragging setup ---
+            function startDrag(e) {
+                e.preventDefault();
+                isDragging = true;
+                updateMeasurements();
+                // window.addEventListener('resize', updateMeasurements);
+
+                hoseNozzlePov.classList.add('hidden');
+                hoseNozzlePovOn.classList.add('hidden');
+                indicator.classList.add('hidden');
+                hoseBody.classList.add('hidden');
+                nozzle.classList.remove('hidden');
+
+                dragTarget.style.cursor = 'grabbing';
+
+                // 💧 Show water spray when dragging starts
+                // waterSpray.classList.add('active');
+
+                document.addEventListener('mousemove', handleDrag);
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchmove', handleDrag);
+                document.addEventListener('touchend', endDrag);
+            }
+
+            function handleDrag(e) {
+                if (!isDragging) return;
+                extendedHose.classList.remove('hidden');
+
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                // Use drag-target2 as reference point
+                const dx = clientX - dragOrigin.x;
+                const dy = clientY - dragOrigin.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+                extendedHose.style.width = `${distance}px`;
+                extendedHose.style.transform = `rotate(${angle}deg)`;
+
+                // Keep spray oriented with nozzle
+                // waterSpray.style.transform = `rotate(${angle}deg)`;
+
+                // Every frame while dragging, spawn a few water droplets
+                for (let i = 0; i < 20; i++) {
+                    const areaRect = reelInteractArea.getBoundingClientRect();
+                    const localX = clientX - areaRect.left;
+                    const localY = clientY - areaRect.top;
+                    spawnWaterParticle(localX, localY, angle);
+                }
+
+                if (distance > 330) {
+                    showSuccessAndTransition();
+                }
+            }
+
+            function endDrag() {
+                isDragging = false;
+
+                // 💧 Hide water spray when drag ends
+                // waterSpray.classList.remove('active');
+
+                // Retract hose smoothly
+                extendedHose.style.transition = 'width 0.4s ease';
+                extendedHose.style.width = '0';
+                setTimeout(() => {
+                    extendedHose.classList.add('hidden');
+                    hoseBody.classList.remove('hidden');
+                    extendedHose.style.transition = '';
+                }, 400);
+
+                hoseNozzlePovOn.classList.remove('hidden');
+
+                document.removeEventListener('mousemove', handleDrag);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchmove', handleDrag);
+                document.removeEventListener('touchend', endDrag);
+
+                dragTarget.style.cursor = 'grab';
+            }
+
+            // --- 4. Success State ---
+            function showSuccessAndTransition() {
+                if (isComplete) return;
+                isComplete = true;
+
+                reelInteractArea.classList.remove('spraying');
+                fireTarget.classList.add('fire-dim');
+
+                instructionText.classList.add('hidden');
+                successMessage.style.display = 'flex';
+                const stampImage = successMessage.querySelector('.success-stamp');
+
+                setTimeout(() => {
+                    stampImage.classList.add('stamped');
+                }, 50);
+
+                setTimeout(() => {
+                    window.location.href = 'hosereel-sequence-end.html';
+                }, 3000);
+            }
+        });
+    </script>
+
+</body>
+
+</html>

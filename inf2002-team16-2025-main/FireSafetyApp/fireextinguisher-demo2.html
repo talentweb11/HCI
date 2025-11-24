@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fire Extinguisher Demo</title>
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+
+<body>
+  <div class="frame">
+
+
+    <!-- Header -->
+    <div data-include="header.html" data-title="Demo" data-step="2" data-total="4"></div>
+
+
+    <!-- Main Content -->
+    <div class="container-demo2 bg-wall">
+      <h2 data-speakable>Step 2: Aim the Nozzle at the Fire</h2>
+
+
+      <!-- Fire -->
+      <img src="assests/images/equipments/fire.png" alt="Fire"
+        style="position: absolute; top: 110px; left: 140px; width: 100px; z-index: 2;" />
+
+
+      <!-- Dustbin -->
+      <img src="assests/images/equipments/dustbin.png" alt="Dustbin"
+        style="width: 150px; position: relative; z-index: 1;" />
+
+
+      <!-- Fire Extinguisher -->
+      <img src="assests/images/equipments/fireextinguisher-pov.png" alt="Fire Extinguisher"
+        style="width: 150px; height: auto; margin-top: -10px; transform: translateX(-110px);" />
+
+
+      <!-- Pointing indicator -->
+      <img src="assests/images/equipments/Pointing.png" alt="Pointing" style="
+          position: absolute;
+          top: 260px;
+          left: 95px;
+          width: 180px;
+          z-index: 2;
+          animation: blink 1s infinite;
+        " />
+
+
+      <!-- Start Button -->
+      <a class="button-start" href="fireextinguisher-step2.html">Start</a>
+    </div>
+
+
+    <!-- Footer -->
+    <div data-include="footer.html"></div>
+
+
+  </div>
+
+
+  <style>
+    @keyframes blink {
+
+      0%,
+      50%,
+      100% {
+        opacity: 1;
+      }
+
+      25%,
+      75% {
+        opacity: 0;
+      }
+    }
+  </style>
+
+
+  <script src="static/js/include.js"></script>
+</body>
+
+</html>

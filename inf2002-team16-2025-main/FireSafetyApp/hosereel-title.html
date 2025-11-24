@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hose Reel Lesson</title>
+  <link rel="stylesheet" href="static/css/style.css">
+  <link rel="stylesheet" href="static/css/footerstyle.css">
+  <style>
+    .frame {
+      overflow: hidden;
+    }
+
+    .title-shell {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: radial-gradient(circle at 80% 20%, #fff7ed, #fff1e6 40%, #f6e7d9);
+    }
+
+    .title-card {
+      background: #fff;
+      width: min(520px, 92%);
+      border-radius: 16px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+      padding: 22px 24px;
+      display: grid;
+      gap: 14px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+      align-items: center;
+    }
+
+    .title-card h2 {
+      margin: 0;
+      color: #0f172a;
+      letter-spacing: 0.4px;
+    }
+
+    .title-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-meta img {
+      width: 140px;
+      height: auto;
+    }
+
+    .title-list {
+      margin: 0;
+      padding-left: 18px;
+      color: #475569;
+      font-size: 15px;
+      line-height: 1.5;
+      text-align: left;
+      max-width: 360px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .title-actions {
+      margin-top: 6px;
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="frame">
+
+    <!-- Header include with dynamic title -->
+    <div data-include="header.html" data-title="What you will learn"></div>
+
+    <div class="title-shell">
+      <div class="title-card">
+        <div class="title-meta">
+          <img src="assests/images/equipments/hosereel.png" alt="Hose Reel" />
+          <div>
+            <h2 data-speakable>Fire Hose Reel</h2>
+          </div>
+        </div>
+
+        <ol class="title-list">
+          <li data-speakable>Turn on hose reel valve</li>
+          <li data-speakable>Pull hose and run to fire</li>
+          <li data-speakable>Turn on water at the nozzle and direct it at the base of the fire</li>
+        </ol>
+
+        <div class="title-actions">
+          <a class="button-start" href="hosereel-sequence.html">Start Demo</a>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <button class="footer-btn" id="session-btn">
+        <img src="assests/images/buttons/entersession.png" alt="Session" />
+      </button>
+
+      <button class="footer-btn" id="home-btn">
+        <img src="assests/images/buttons/home.png" alt="Home" />
+      </button>
+
+      <button class="footer-btn" id="tts-btn">
+        <img src="assests/images/buttons/tts.png" alt="TTS" />
+      </button>
+    </footer>
+  </div>
+
+  <script src="static/js/include.js"></script>
+</body>
+
+</html>

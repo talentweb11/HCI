@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hose Reel Lesson</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+
+<body>
+    <div class="frame">
+
+        <!-- Header include with dynamic title. Added ID for targeting. -->
+        <div data-include="header.html" data-title="Demo" data-step="1" data-total="3" id="header-include"></div>
+
+        <div class="container valve-demo-container"
+            style="background: url('assests/images/equipments/brick-background-hosereel.png') no-repeat center center; background-size: cover; justify-content: flex-start;">
+
+            <h2 data-speakable id="text-instruction" class="text-instruction">Turn on hose reel valve</h2>
+
+            <img src="assests/images/equipments/hosereel-valve.png" alt="Hose Reel" id="hose-reel-valve" />
+            <img src="assests/images/equipments/hand-swipe-gesture.png" alt="Swipe Gesture" id="hand-gesture"
+                class="hand-gesture" />
+
+            <div id="success-message" class="success-overlay hidden">
+                <img src="assests/images/equipments/complete-stamp.png" class="success-stamp" alt="Success">
+            </div>
+
+            <div id="water-flow" class="water-effect"></div>
+
+            <a id="start-demo-button" class="button-start" style="position: absolute; bottom: 9%;">Start</a>
+        </div>
+
+        <div data-include="footer.html"></div>
+    </div>
+
+    <script src="static/js/include.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const startButton = document.getElementById('start-demo-button');
+            const handGesture = document.getElementById('hand-gesture');
+            const valveImage = document.getElementById('hose-reel-valve');
+            const successMessage = document.getElementById('success-message');
+            const stampImage = document.querySelector('.success-stamp');
+            const instructionText = document.getElementById('text-instruction');
+            const waterFlow = document.getElementById('water-flow');
+
+            let turnCount = 0; // Simple counter to simulate a "turn" action
+
+            // --- 1. Start Demo Button Click ---
+            startButton.addEventListener('click', () => {
+                const newTitle = 'Step 1: Turn the valve!';
+                const headerInclude = document.getElementById('header-include');
+
+                // 1. Update the data-title attribute (for completeness)
+                if (headerInclude) {
+                    headerInclude.setAttribute('data-title', newTitle);
+
+                    // 2. Direct Fix: Find the specific header title element inside the included content
+                    // Since header.html uses id="header-title", we query for it inside the container.
+                    const titleDisplayElement = headerInclude.querySelector('#header-title');
+
+                    if (titleDisplayElement) {
+                        titleDisplayElement.textContent = newTitle;
+                    } else {
+                        console.error('The element with ID "header-title" could not be found inside the header include after clicking "Start".');
+                    }
+                }
+
+
+                // A. Hide instructional elements
+                startButton.classList.add('hidden');
+                handGesture.classList.add('hidden');
+
+                // B. Update instruction text
+                instructionText.textContent = "";
+
+                // C. Make the valve clickable for the user
+                valveImage.classList.add('clickable-valve');
+                valveImage.addEventListener('click', handleUserTurn);
+
+                valveImage.classList.add('valve-on-reel');
+
+                // D. Optional: Remove the animation on the valve image itself
+                handGesture.style.animation = 'none';
+            });
+
+            // --- 2. User Interaction Handler ---
+            function handleUserTurn() {
+                // --- SIMULATED GESTURE CHECK ---
+                turnCount++;
+
+                // A. Visually turn the valve
+                let rotation = turnCount * -20; // -20deg rotation per "click"
+                valveImage.style.transform = `rotate(${rotation}deg)`;
+
+                // B. Check for success (e.g., after 3 clicks)
+                if (turnCount >= 3) {
+                    // Remove the handler to prevent further clicks
+                    valveImage.removeEventListener('click', handleUserTurn);
+                    valveImage.classList.remove('clickable-valve');
+
+                    // C. Show success message
+                    showSuccess();
+                }
+            }
+
+            // --- 3. Success State ---
+            function showSuccess() {
+                instructionText.classList.add('hidden');
+                successMessage.style.display = 'flex'; // Show the overlay
+                setTimeout(() => {
+                    stampImage.classList.add('stamped');
+                }, 50);
+                waterFlow.classList.add('water-running');
+
+                // Set a 3 - second delay before moving to the next step
+                const delayInMilliseconds = 3000; // 3 seconds
+
+                setTimeout(() => {
+                    // Replace 'pull-hose-step.html' with the actual URL of your next step page
+                    window.location.href = 'hosereel-sequence-step2.html';
+                }, delayInMilliseconds);
+            }
+        });
+    </script>
+</body>
+
+</html>

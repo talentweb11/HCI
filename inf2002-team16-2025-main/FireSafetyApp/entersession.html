@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Join Session</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <style>
+        /* HCI-friendly card layout for joining a session */
+        .session-shell {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            padding: 24px;
+            background: radial-gradient(circle at 20% 20%, #f7faff, #eef3ff 40%, #e6e9f0);
+        }
+
+        .session-card {
+            background: #fff;
+            width: min(460px, 90%);
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+            padding: 28px;
+            box-sizing: border-box;
+            display: grid;
+            gap: 16px;
+            text-align: left;
+        }
+
+        .session-card h2 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: 0.2px;
+            color: #0f172a;
+        }
+
+        .session-card p {
+            margin: 0;
+            color: #475569;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .session-field {
+            display: grid;
+            gap: 6px;
+        }
+
+        .session-field label {
+            font-weight: 600;
+            color: #0f172a;
+            font-size: 14px;
+        }
+
+        .session-input {
+            width: 90%;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .session-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .session-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .session-btn {
+            padding: 12px 18px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease;
+        }
+
+        .session-btn.primary {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+        }
+
+        .session-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.4);
+        }
+
+        .session-hint {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .splash-content img{
+            width: 190px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="frame">
+
+        <div data-include="header.html" data-title="Session"></div>
+
+        <div class="session-shell">
+
+            <div class="splash-content">
+                <img src="assests/images/logos/fire-safety-buddy.png" alt="Fire Safety Buddy Logo" />
+            </div>
+            
+            <div class="session-card">
+                <h2>Join your session</h2>
+                <p>Enter the session ID shared by your facilitator and your name so we can keep everyone in sync.</p>
+
+                <div class="session-field">
+                    <label for="sessionIdInput">Session ID</label>
+                    <input type="text" id="sessionIdInput" class="session-input" placeholder="e.g. 6H2K-Q9">
+                </div>
+
+                <div class="session-field">
+                    <label for="nameInput">Your name</label>
+                    <input type="text" id="nameInput" class="session-input" placeholder="Enter your name">
+                    <span class="session-hint">We’ll display this to others in the session.</span>
+                </div>
+
+                <div class="session-actions">
+                    <button class="session-btn primary" onclick="joinSession()">Enter session</button>
+                </div>
+            </div>
+        </div>
+
+        <div data-include="footer.html"></div>
+
+    </div>
+
+    <script src="static/js/include.js"></script>
+    <script src="static/js/session.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fire Extinguisher Demo</title>
+  <link rel="stylesheet" href="static/css/style.css">
+  <style>
+    /* Make the completion stamp smaller on this step */
+    .success-stamp {
+      width: 280px;
+      max-width: 50%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="frame">
+
+    <div data-include="header.html" data-title="Step 1: Pull the Pin" data-step="1" data-total="4"></div>
+
+    <div class="container demo-container" style="position: relative;">
+      <h2 data-speakable id="text-instruction" class="text-instruction">Pull the pin to continue</h2>
+
+      <div style="position: relative;">
+        <img 
+          src="assests/images/equipments/fireextinguisher.png" 
+          class="fire-extinguisher" 
+          alt="Fire Extinguisher">
+
+        <img 
+          src="assests/images/equipments/fire-extinguisher-pin.png" 
+          id="step1pin" 
+          class="step1pin" 
+          alt="Fire Extinguisher Pin">
+      </div>
+
+      <div id="success-message" class="success-overlay">
+        <img src="assests/images/equipments/complete-stamp.png" class="success-stamp" alt="Complete">
+      </div>
+    </div>
+
+    <div data-include="footer.html"></div>
+  </div>
+
+  <script src="static/js/include.js"></script>
+
+  <script>
+    const step1pin = document.getElementById('step1pin');
+    const successMessage = document.getElementById('success-message');
+    const stampImage = document.querySelector('.success-stamp');
+    const instructionText = document.getElementById('text-instruction');
+
+    step1pin.addEventListener('dragstart', e => e.preventDefault());
+
+    let isDragging = false;
+    let startX = 0;
+    const dragLimit = 100; 
+    let pulled = false;
+
+    step1pin.addEventListener('mousedown', startDrag);
+    step1pin.addEventListener('touchstart', startDrag);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('touchmove', drag);
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchend', endDrag);
+
+    function startDrag(e) {
+      if (pulled) return;
+      isDragging = true;
+      startX = (e.touches ? e.touches[0].clientX : e.clientX);
+      step1pin.classList.add('dragging');
+    }
+
+    function drag(e) {
+      if (!isDragging || pulled) return;
+      const currentX = (e.touches ? e.touches[0].clientX : e.clientX);
+      let deltaX = currentX - startX;
+
+      if (deltaX < 0) deltaX = 0;
+      if (deltaX > dragLimit) deltaX = dragLimit;
+
+      step1pin.style.transform = `translateX(${deltaX}px)`;
+
+      if (deltaX >= dragLimit) {
+        pulled = true;
+        showCompletion();
+      }
+    }
+
+    function endDrag() {
+      if (!isDragging || pulled) return;
+      isDragging = false;
+      step1pin.classList.remove('dragging');
+      step1pin.style.transition = 'transform 0.2s ease';
+      step1pin.style.transform = 'translateX(0)';
+    }
+
+    function showCompletion() {
+      // Fade out the pin
+      step1pin.style.transition = 'opacity 0.4s ease';
+      step1pin.style.opacity = '0';
+
+      instructionText.classList.add('hidden');
+
+      successMessage.style.display = 'flex';
+      setTimeout(() => {
+        stampImage.classList.add('stamped');
+      }, 50);
+
+      setTimeout(() => {
+        window.location.href = "fireextinguisher-demo2.html";
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

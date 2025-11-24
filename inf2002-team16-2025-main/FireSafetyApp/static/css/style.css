@@ -1,0 +1,869 @@
+body {
+  margin: 0;
+  background-color: #e6e6e6;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* App viewport centered on page — keep a 9:16 aspect ratio */
+.frame {
+  /* Use CSS aspect-ratio so the viewport always stays 9:16 (width:height = 9:16) */
+  aspect-ratio: 9 / 16;
+  /* Limit height to viewport so it scales on different screens */
+  height: min(90vh, 900px);
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  /* remove heavy 'device' chrome — keep a subtle radius and shadow */
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Notch (for realism) */
+.notch {
+  display: none;
+  /* decorative notch removed when not showing phone chrome */
+}
+
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  /* add horizontal padding so buttons don't touch the frame edges */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Splash-specific layout: make the logo and heading scale and fit inside the 9:16 viewport */
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.splash-content img {
+  /* Double the display size compared to the previous rule so the logo appears ~2x larger.
+     This keeps it responsive (percent) but increases the max pixel size. */
+  width: min(100%, 600px);
+  height: auto;
+}
+
+.splash-content h1 {
+  margin: 0;
+  /* Responsive heading size that fits the viewport */
+  font-size: clamp(1.4rem, 4.5vw, 2.2rem);
+  line-height: 1.05;
+}
+
+.button {
+  /* Fill almost the entire available width while keeping a fixed aspect ratio.
+     The container provides horizontal padding; the button uses 100% of the
+     container width but is capped with max-width to avoid excessive size on very wide screens. */
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 10 / 7;
+  /* preserves previous width:height ratio (approx 200:140) */
+  border: 2px solid #000;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  background-color: #f9f9f9;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  margin: 0 auto;
+  /* center when max-width applies */
+}
+
+.button:hover {
+  background-color: #f1f1f1;
+  transform: scale(1.05);
+}
+
+.button img {
+  /* scale the icon with the button size so it looks balanced */
+  width: 200px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.button-start {
+  margin-top: 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 40px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-decoration: none;
+}
+
+.button-start:hover {
+  background-color: #45a049;
+}
+
+.header {
+  position: relative;
+  width: 100%;
+  text-align: center;
+  border-bottom: 2px solid #000;
+  padding: 18px 0; /* slightly tighter to lift header content */
+  /* balanced vertical spacing */
+  box-sizing: border-box;
+  background-color: #f3f3f3;
+  /* light gray background */
+  border-top-left-radius: 8px;
+  /* match frame corners */
+  border-top-right-radius: 8px;
+}
+
+.button-back {
+  position: absolute;
+  top: 18px;
+  /* consistent placement */
+  left: 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 10;
+}
+
+.button-back img {
+  width: 35px;
+  height: auto;
+}
+
+#header-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1.2;
+  color: #000;
+  padding: 0 50px 0 50px; /* keep title clear of back button and edges */
+}
+
+.step-progress {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.step-segment {
+  width: 30px;
+  height: 10px;
+  border-radius: 4px;
+  background-color: #dcdcdc;
+  transition: background-color 0.3s ease;
+}
+
+.step-segment.active {
+  background-color: #4CAF50;
+}
+
+.text-instruction {
+  margin: 10px 0 0 0;
+  text-shadow: 2px 2px 3px rgba(255, 255, 255, 0.3);
+}
+
+/* Utility class to hide elements */
+.hidden {
+  display: none;
+}
+
+.hidden-opacity {
+  opacity: 0;
+}
+
+.shown {
+  display: block !important;
+}
+
+.clickable-valve {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.success-stamp {
+  position: absolute;
+  width: 400px;
+  height: auto;
+  top: 16%;
+  left: 5%;
+  transform: translate(-50%, -50%);
+  animation: popIn 0.5s ease forwards;
+  transform: scale(0.1) rotate(0deg);
+  opacity: 0;
+}
+
+.stamped {
+  animation: stampDrop 0.30s ease-out forwards;
+}
+
+/* Keyframe animation for the stamp effect */
+@keyframes stampDrop {
+  0% {
+    transform: scale(0.01) rotate(-15deg);
+    /* Start tiny and rotated */
+    opacity: 0;
+  }
+
+  75% {
+    transform: scale(1.3) rotate(5deg);
+    /* Large overshoot in the opposite direction */
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1) rotate(0deg);
+    /* Settle perfectly centered and straight */
+    opacity: 1;
+  }
+}
+
+/* Reusable background for extinguisher demos */
+.bg-wall {
+  background-image: url('../../assests/images/equipments/wall.png');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover; /* full-bleed background */
+}
+
+.container-demo2 {
+  padding-bottom: 80px; /* keep footer from being overlapped on tall backgrounds */
+  box-sizing: border-box;
+}
+
+/* ------------------------------- */
+/* ------- Hosereel Styles ------- */
+/* ------------------------------- */
+
+.hand-gesture {
+  position: absolute;
+  /* Position relative to .valve-animation-container */
+  width: 100px;
+  /* Adjust size of the hand */
+  height: auto;
+  animation: swipeValve 2.5s infinite ease-in-out;
+  /* Apply animation */
+  /* Initial position of the hand, adjust as needed */
+  top: 20%;
+  left: 30%;
+  transform-origin: 70% 70%;
+  /* For rotation if needed */
+}
+
+.hand-gesture-step2 {
+  animation: pullHose 2.5s infinite ease-in-out;
+  /* Apply animation */
+  /* Initial position of the hand, adjust as needed */
+  top: 40%;
+  left: 20%;
+  transform-origin: 70% 70%;
+  /* For rotation if needed */
+}
+
+#hose-reel-valve {
+  position: absolute;
+  /* Keep absolute positioning */
+  width: 240px;
+  /* Initial size of the valve */
+  height: auto;
+  /* Initial margin to position it below the hose reel */
+  top: 25%;
+  left: 20%;
+  /* Initial position, adjust as needed */
+  transition: width 0.5s ease-in-out, top 0.5s ease-in-out, left 0.5s ease-in-out;
+}
+
+/* New style to move and scale the valve after the demo starts */
+.valve-on-reel {
+  /* Adjust these values based on where the valve should sit on your background image */
+  width: 80px !important;
+  /* Smaller size for the valve */
+  position: absolute;
+  /* Keep absolute positioning */
+  margin: 0 !important;
+  /* Remove previous margins */
+
+  /* Fine-tune top/left percentages to place it on the reel */
+  top: 39% !important;
+  /* Example position on the hose reel */
+  left: 33% !important;
+
+  /* Add a transition for smooth movement */
+  transition: width 0.5s ease-in-out, top 0.5s ease-in-out, left 0.5s ease-in-out;
+}
+
+/* Update the main container (or a dedicated valve container) to position the water relative to it */
+.container.valve-demo-container {
+  position: relative;
+  /* Make sure this is present */
+  /* ... existing styles ... */
+}
+
+/* Base style for the simulated water element (initially hidden) */
+.water-effect {
+  /* Set this up to position over the hose nozzle */
+  position: absolute;
+  top: 57.5%;
+  left: 42.6%;
+  width: 2px;
+  /* Width of the water stream */
+  height: 120px;
+  /* Max length of the animation */
+  overflow: hidden;
+  /* Important: keeps the 'water' confined */
+  opacity: 0;
+  transition: opacity 0.5s;
+  /* Smooth fade-in */
+}
+
+/* The actual water streak created using a pseudo-element */
+.water-effect::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200%;
+  /* Double the height to enable flowing animation */
+  background-color: rgba(135, 206, 250, 0.7);
+  /* Light blue/sky blue color */
+  box-shadow: 0 0 5px rgba(0, 191, 255, 0.5);
+  /* Subtle white/blue glow */
+  border-radius: 5px;
+
+  /* Start the water streak high up (hidden by .water-effect-css overflow) */
+  transform: translateY(-100%);
+}
+
+/* Class added on success to start the flow */
+.water-running {
+  opacity: 1;
+}
+
+.water-running::after {
+  /* Apply the continuous downward animation */
+  animation: FlowDown 1.2s infinite linear;
+}
+
+/* Container for the reel and all its components */
+.reel-interact-area {
+  position: relative;
+  width: 300px;
+  /* Adjust to fit the width of your hosereel2.jpg */
+  height: 300px;
+  /* Adjust height */
+  /* margin: 50px 0; */
+  /* Center it vertically in the container */
+}
+
+/* Static Reel Image */
+.static-reel {
+  width: 268px;
+  height: auto;
+  position: absolute;
+  top: 24%;
+  left: -37%;
+}
+
+.hose-body {
+  width: 166px;
+  height: auto;
+  position: absolute;
+  top: 32.7%;
+  left: -27.8%;
+}
+
+/* Dynamic Extended Hose setup */
+.extended-hose {
+  position: absolute;
+  /* Position the anchor point of the extended hose over the core connection point */
+  top: 57%;
+  left: 22%;
+  /* Start with minimal size/visibility */
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+  /* Rotation/scaling happens from this point */
+}
+
+/* The visual hose segment (pure CSS pipe) */
+.hose-segment {
+  position: absolute;
+  width: 100%;
+  height: 20px;
+  /* Thickness of the hose */
+  background-color: #CC3333;
+  /* Red hose color */
+  border-radius: 10px;
+  top: -10px;
+  /* Half of height to center it vertically on the origin */
+}
+
+/* Nozzle attached to the end */
+.nozzle {
+  position: absolute;
+  right: -52px;
+  /* Position it past the end of the stretched segment */
+  top: -38px;
+  /* Adjust to center on the hose segment */
+  width: 40px;
+  height: auto;
+  /* Ensure the nozzle stays facing right regardless of rotation */
+  transform: rotate(270deg);
+}
+
+/* Target element for mouse events (large, invisible, and on top) */
+.drag-target {
+  position: absolute;
+  top: 30%;
+  left: -27%;
+  width: 230px;
+  height: 200px;
+  cursor: grab;
+  z-index: 5;
+  /* Ensure it is over the static image */
+}
+
+.drag-target2 {
+  position: absolute;
+  top: 125%;
+  left: -48%;
+  width: 230px;
+  height: 220px;
+  cursor: grab;
+  z-index: 99;
+}
+
+.hose-nozzle-pov {
+  position: absolute;
+  width: 90px;
+  height: auto;
+  top: 123%;
+  left: 0%;
+}
+
+.hose-nozzle-pov-on {
+  display: none;
+}
+
+.hose-nozzle-indicator {
+  position: absolute;
+  width: 90px;
+  height: auto;
+  top: 123%;
+  left: 0%;
+  transition: 0.5s ease-in-out;
+}
+
+.clickable-indicator {
+  cursor: pointer;
+}
+
+.indicator-initial {
+  /* Place the indicator at the starting (OFF) point on the nozzle */
+  top: 123%;
+  left: 0%;
+}
+
+/* --- D. Final Position (ON) --- */
+.indicator-on {
+  top: 117%;
+  left: -6.5%;
+}
+
+.hose-pipe-body {
+  position: absolute;
+  width: 144px;
+  height: auto;
+  top: 140%;
+  left: -35%;
+}
+
+.hand-gesture-on-nozzle {
+  position: absolute;
+  width: 100px;
+  height: auto;
+  animation: onNozzle 1.5s infinite ease-in-out;
+  top: 74%;
+  left: 3%;
+  transform-origin: 70% 70%;
+  transform: rotate(80deg);
+}
+
+.fire {
+  position: absolute;
+  width: 150px;
+  height: auto;
+  top: 53%;
+  left: 58%;
+}
+
+.fire-target {
+  position: absolute;
+  /* Dimensions of a SINGLE FRAME */
+  top: 53%;
+  left: 55%;
+  width: 170px;
+  /* Example: width of one frame */
+  height: 230px;
+  /* Example: height of one frame */
+
+  background-image: url('../../assests/images/equipments/fire-sprite.png');
+  /* Your single-row sprite */
+  background-size: 600% 100%;
+  /* 6 columns x 1 row */
+
+  animation: burn-animation-simple 0.8s steps(6) infinite;
+  z-index: 5;
+}
+
+/* --- New Aiming Styles (Water Stream and Pivot) --- */
+
+/* The pivot point for aiming (Anchor point for rotation) */
+.aiming-pivot {
+  position: absolute;
+  /* Adjust these to align with the end of your hose-pipe-body image */
+  top: 123%;
+  left: 0%;
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+}
+
+.water-spray {
+  position: absolute;
+  top: -10px;
+  left: 150%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.water-spray.active {
+  opacity: 1;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 160px solid rgba(173, 216, 230, 0.7);
+  filter: blur(3px);
+  animation: sprayPulse 0.2s infinite alternate;
+}
+
+@keyframes sprayPulse {
+  from {
+    transform: scaleX(1) scaleY(1);
+    opacity: 0.8;
+  }
+
+  to {
+    transform: scaleX(1.1) scaleY(1.05);
+    opacity: 1;
+  }
+}
+
+.water-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(173, 216, 230, 0.9);
+  /* light blue */
+  opacity: 1;
+  transform: translate(0, 0);
+  animation: waterFly 0.5s linear forwards;
+  pointer-events: none;
+  z-index: 6;
+  /* above hose */
+}
+
+/* Animation variables come from JS ( --dx , --dy ) */
+@keyframes waterFly {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0.6);
+  }
+}
+
+/* Utility class to temporarily stop the fire animation when hit */
+.fire-dim {
+  animation: none !important;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* --- Dynamic Hose Segment Styles --- */
+.dynamic-hose-segment {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 30px;
+  /* Thickness of the hose pipe */
+  width: 10px;
+  /* Default short length */
+  background-color: #CC3333;
+  /* Red hose color */
+  border-radius: 15px;
+  /* CRITICAL FIX: Center vertically on the pivot point (half of 30px) */
+  /* width: 0;
+  height: 0; */
+  transform-origin: 0 0;
+  /* opacity: 0; */
+  /* Starts hidden */
+  transition: opacity 0.3s;
+  z-index: 0;
+  /* Below water and nozzle */
+}
+
+.extended-hose2 {
+  position: absolute;
+  /* Position the anchor point of the extended hose over the core connection point */
+  top: 180%;
+  left: -20%;
+  /* Start with minimal size/visibility */
+  width: 0;
+  height: 0;
+  transform-origin: 0 0;
+  /* Rotation/scaling happens from this point */
+}
+
+/* The visual hose segment (pure CSS pipe) */
+.hose-segment2 {
+  position: absolute;
+  width: 100%;
+  height: 20px;
+  /* Thickness of the hose */
+  background-color: #CC3333;
+  /* Red hose color */
+  border-radius: 10px;
+  top: -10px;
+  /* Half of height to center it vertically on the origin */
+}
+
+/* Nozzle attached to the end */
+.nozzle2 {
+  position: absolute;
+  right: -52px;
+  /* Position it past the end of the stretched segment */
+  top: -38px;
+  /* Adjust to center on the hose segment */
+  width: 40px;
+  height: auto;
+  /* Ensure the nozzle stays facing right regardless of rotation */
+  transform: rotate(270deg);
+}
+
+/* When aiming is active, hide static hose body and show dynamic segment */
+/* .reel-interact-area.aiming-active #hose-pipe-body {
+  display: none;
+} */
+
+.reel-interact-area.aiming-active .dynamic-hose-segment {
+  opacity: 1;
+}
+
+/* Ensure water stream and nozzle z-index is correct */
+.water-stream {
+  z-index: 1;
+  /* ... rest of water-stream styles ... */
+}
+
+.hose-nozzle-pov-on {
+  z-index: 2;
+  /* ... rest of nozzle styles ... */
+}
+
+/* Keyframe animation for a single row sprite */
+@keyframes burn-animation-simple {
+  to {
+    background-position: -603.1% 0;
+    /* Shift 6 times its own width horizontally */
+  }
+}
+
+/* Keyframe animation to simulate water running down */
+@keyframes FlowDown {
+  0% {
+    transform: translateY(-100%);
+    /* Start position (top of the double-height element) */
+  }
+
+  100% {
+    transform: translateY(100%);
+    /* End position (bottom of the double-height element) */
+  }
+}
+
+@keyframes swipeValve {
+  0% {
+    transform: translate(0, 0) rotate(20deg);
+    /* Start: no movement, no rotation */
+    opacity: 1;
+  }
+
+  50% {
+    /* Mid-point of rotation */
+    transform: translate(-20px, 0px) rotate(-100deg);
+    top: 25%;
+    left: 20%;
+    /* Continue rotation, adjust translation */
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(20deg);
+    /* End: back to start position and rotation */
+    opacity: 1;
+  }
+}
+
+@keyframes pullHose {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    /* Start: no movement, no rotation */
+    opacity: 1;
+  }
+
+  50% {
+    /* Mid-point of rotation */
+    transform: translate(0, 0) rotate(10deg);
+    top: 42%;
+    left: 40%;
+    /* Continue rotation, adjust translation */
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+    /* End: back to start position and rotation */
+    opacity: 1;
+  }
+}
+
+@keyframes onNozzle {
+  0% {
+    transform-origin: 70% 70%;
+    transform: rotate(80deg);
+  }
+
+  100% {
+    transform-origin: 70% 70%;
+    transform: rotate(50deg);
+  }
+}
+
+/*for fire extinguisher*/
+.demo-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.fire-extinguisher {
+  width: 200px;
+  height: auto;
+  z-index: 1;
+}
+
+.hand {
+  position: absolute;
+  width: 120px;
+  top: 40px;
+  left: 130px;
+  transform: rotate(-20deg);
+  cursor: grab;
+  animation: demopull 1s ease-in-out infinite alternate;
+  z-index: 2;
+}
+
+.pin {
+  position: absolute;
+  width: 50px;
+  top: 22px;
+  left: 115px;
+  z-index: 2;
+  animation: pinMove 1s ease-in-out infinite alternate;
+}
+
+.step1pin {
+  position: absolute;
+  width: 50px;
+  top: 20px;
+  left: 105px;
+  z-index: 3;
+  cursor: grab;
+  transition: transform 0.05s linear;
+  transform-origin: center;
+  user-select: none;
+  -webkit-user-drag: none;
+  /* prevent ghost drag image */
+}
+
+.step1pin.dragging {
+  cursor: grabbing;
+}
+
+.container-demo2 {
+  flex: 1;
+  /* takes remaining vertical space */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  position: relative;
+  padding: 20px 0;
+}
+
+/* For reference: passive animation (used on demo pages only) */
+@keyframes pinMove {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(10px);
+  }
+}
+
+/* Optional animation */
+@keyframes demopull {
+  0% {
+    transform: scaleX(1) translateX(0);
+  }
+
+  100% {
+    transform: scaleX(1) translateX(10px);
+  }
+}
